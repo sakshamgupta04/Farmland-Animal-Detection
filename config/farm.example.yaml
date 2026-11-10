@@ -1,0 +1,139 @@
+# =============================================================================
+# FarmGuard Configuration — Example
+# =============================================================================
+# Copy this file to config/farm.yaml and adjust values for your deployment.
+
+# -- Camera / video source --------------------------------------------------
+camera:
+  source: "0"            # "0" = default webcam, or path to video file / RTSP URL
+  width: 1280
+  height: 720
+  fps_limit: 15.0
+  reconnect_interval: 5.0
+  quality_check_enabled: true
+
+# -- Zone definitions -------------------------------------------------------
+# Polygons as lists of [x, y] points (normalised 0–1 or pixel coords)
+zones:
+  protected: []          # Main crop area polygon
+  ignore: []             # List of polygons to skip (roads, buildings)
+
+# -- Stage-1 detector -------------------------------------------------------
+detector:
+  model_path: "models/detector.onnx"
+  input_size: 640
+  confidence_threshold: 0.4
+  nms_threshold: 0.5
+  thread_count: 2
+
+# -- Stage-2 species classifier ---------------------------------------------
+classifier:
+  model_path: "models/species_classifier.onnx"
+  input_size: 224
+  confidence_threshold: 0.6
+  unknown_threshold: 0.6
+  labels_file: "models/species_labels.txt"
+  temperature: 1.0
+
+# -- Farm scene classifier --------------------------------------------------
+farm_classifier:
+  model_path: "models/farm_classifier.onnx"
+  input_size: 224
+  confidence_threshold: 0.7
+  check_interval_seconds: 30.0
+  enabled: true
+
+# -- Temporal voting --------------------------------------------------------
+# Require N detections in the last M frames to confirm a species
+voting:
+  n: 3
+  m: 5
+
+# -- Object tracker ---------------------------------------------------------
+tracker:
+  max_age: 30
+  min_hits: 3
+  iou_threshold: 0.3
+
+# -- Deterrent limits -------------------------------------------------------
+deterrent:
+  volume_cap: 0.7          # Maximum volume (0.0–1.0)
+  demo_volume: 0.3         # Reduced volume for demos
+  max_duration_seconds: 5.0
+  min_interval_seconds: 15.0
+  mute: false              # Set true to silence all audio
+  kill_switch: false       # Emergency stop all deterrents
+
+# -- Audible beep patterns --------------------------------------------------
+beep:
+  enabled: true
+  patterns:
+    attention:
+      - [800, 200]
+      - [0, 100]
+      - [800, 200]
+      - [0, 100]
+      - [800, 200]
+    warning:
+      - [1000, 500]
+      - [0, 200]
+      - [1000, 500]
+    urgent:
+      - [1200, 100]
+      - [0, 50]
+      - [1200, 100]
+      - [0, 50]
+      - [1200, 100]
+      - [0, 50]
+      - [1200, 100]
+      - [0, 50]
+      - [1200, 100]
+      - [0, 50]
+    danger_alert:
+      - [600, 1000]
+
+# -- Email alerts -----------------------------------------------------------
+# Credentials: set FARMGUARD_EMAIL_USER and FARMGUARD_EMAIL_PASS env vars
+email:
+  enabled: false
+  smtp_host: ""
+  smtp_port: 587
+  use_tls: true
+  from_address: ""
+  to_addresses: []
+  alert_cooldown_seconds: 300   # Max 1 email per 5 minutes per species
+  include_thumbnail: true
+  language: "en"                # "en" or "hi"
+
+# -- Telegram alerts --------------------------------------------------------
+# Set FARMGUARD_TELEGRAM_TOKEN and FARMGUARD_TELEGRAM_CHAT_ID env vars
+telegram:
+  enabled: false
+  rate_limit_per_minute: 5
+  include_thumbnail: true
+  language: "en"
+
+# -- Quiet hours (mute audible deterrents) ----------------------------------
+quiet_hours:
+  enabled: false
+  start: "22:00"
+  end: "06:00"
+
+# -- Live monitoring server -------------------------------------------------
+monitor:
+  enabled: true
+  host: "127.0.0.1"
+  port: 8765
+
+# -- Demo mode --------------------------------------------------------------
+demo:
+  enabled: false
+  bypass_quiet_hours: true
+  use_demo_volume: true
+
+# -- Event retention --------------------------------------------------------
+retention:
+  max_events: 10000
+  max_days: 90
+  min_disk_free_mb: 500
+
