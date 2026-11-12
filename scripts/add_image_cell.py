@@ -81,3 +81,4 @@ with open(nb_path, "w", encoding="utf-8") as f:
     json.dump(nb, f, indent=2)
 
 print("Updated notebook with Image testing cells!")
+
